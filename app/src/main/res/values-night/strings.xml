@@ -48,4 +48,6 @@
     <string name="failed_to_take_photo">Failed to take photo</string>
     <string name="description">Description</string>
     <string name="change_language">Change language</string>
+    <string name="camera_request_title">Would Like to Access the Camera</string>
+    <string name="camera_request_msg">This lets you do things like take and share photos and use other special features and effects</string>
 </resources>

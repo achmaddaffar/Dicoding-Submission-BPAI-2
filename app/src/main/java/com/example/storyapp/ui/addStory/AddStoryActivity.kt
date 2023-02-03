@@ -8,10 +8,12 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -71,11 +73,7 @@ class AddStoryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         if (!allPermissionsGranted()) {
-            ActivityCompat.requestPermissions(
-                this,
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-            )
+            requestPermission()
         }
 
         setupViewModel()
@@ -101,9 +99,37 @@ class AddStoryActivity : AppCompatActivity() {
                     getString(R.string.unable_to_obtain_permission),
                     Toast.LENGTH_SHORT
                 ).show()
-                finish()
+                showPermissionDialog()
             }
         }
+    }
+
+    private fun showPermissionDialog() {
+        AlertDialog.Builder(this).apply {
+            setTitle(StringBuilder("\"${getString(R.string.app_name)}\" ").append(getString(R.string.camera_request_title)))
+            setMessage(getString(R.string.camera_request_msg))
+            setPositiveButton(R.string.yes) { dialogInterface, _ ->
+                dialogInterface.dismiss()
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            setNegativeButton("NO") { dialogInterface, _ -> dialogInterface.dismiss() }
+            show()
+        }
+    }
+
+    private fun requestPermission(): Boolean {
+        val isGranted = allPermissionsGranted()
+        if (!isGranted)
+            ActivityCompat.requestPermissions(
+                this,
+                REQUIRED_PERMISSIONS,
+                REQUEST_CODE_PERMISSIONS
+            )
+        return isGranted
     }
 
     private fun setupViewModel() {
@@ -169,7 +195,11 @@ class AddStoryActivity : AppCompatActivity() {
                 )
             }
             btnGallery.setOnClickListener { startGallery() }
-            btnCamera.setOnClickListener { startCameraX() }
+            btnCamera.setOnClickListener {
+                requestPermission()
+                if (allPermissionsGranted())
+                    startCameraX()
+            }
 
             edAddDescription.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(

@@ -47,4 +47,6 @@
     <string name="failed_to_take_photo">Gagal mengambil foto</string>
     <string name="description">Deskripsi</string>
     <string name="change_language">Ubah bahasa</string>
+    <string name="camera_request_title">Ingin Mengakses Kamera</string>
+    <string name="camera_request_msg">Ini memungkinkan Anda melakukan hal-hal seperti mengambil dan membagikan foto serta menggunakan fitur dan efek khusus lainnya</string>
 </resources>
