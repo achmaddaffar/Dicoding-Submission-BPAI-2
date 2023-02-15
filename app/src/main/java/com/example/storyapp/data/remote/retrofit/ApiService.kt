@@ -1,9 +1,7 @@
 package com.example.storyapp.data.remote.retrofit
 
-import com.example.storyapp.data.remote.response.LoginResponse
-import com.example.storyapp.data.remote.response.RegisterResponse
-import com.example.storyapp.data.remote.response.StoryResponse
-import com.example.storyapp.data.remote.response.UploadStoryResponse
+import androidx.paging.PagingSource
+import com.example.storyapp.data.remote.response.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -47,14 +45,9 @@ interface ApiService {
 
     @GET("stories")
     fun getAllStory(
-        @Header("Authorization") token: String
-    ): Call<StoryResponse>
-
-    @GET("stories")
-    fun getAllStory(
         @Header("Authorization") token: String,
-        @Query("page") page: String,
-        @Query("size") size: String,
-        @Query("location") location: Int
-    ): Call<StoryResponse>
+        @Query("page") page: String? = null,
+        @Query("size") size: String? = null,
+        @Query("location") location: Int? = null
+    ): PagingSource<Int, ListStoryItem>
 }

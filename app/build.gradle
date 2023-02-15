@@ -31,6 +31,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 
     buildFeatures {
@@ -41,7 +42,7 @@ android {
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
@@ -87,4 +88,11 @@ dependencies {
 
     // Core Testing
     testImplementation "androidx.arch.core:core-testing:2.1.0"
+
+    //TestDispatcher
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+
+    // Paging
+    implementation 'androidx.room:room-paging:2.5.0'
+    implementation "androidx.paging:paging-runtime-ktx:3.1.1"
 }
