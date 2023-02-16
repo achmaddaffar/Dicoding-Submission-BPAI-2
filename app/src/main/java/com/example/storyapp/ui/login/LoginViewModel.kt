@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storyapp.R
 import com.example.storyapp.data.local.UserModel
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.LoginResponse
 import com.example.storyapp.data.remote.response.LoginResult
 import com.example.storyapp.data.remote.retrofit.ApiConfig
+import com.example.storyapp.data.repository.StoryRepository
 import com.example.storyapp.utils.Event
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -19,7 +19,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel(
-    private val pref: UserPreference,
+    private val repository: StoryRepository,
     private val application: Application
 ) :
     ViewModel() {
@@ -57,7 +57,7 @@ class LoginViewModel(
                         val name = loginResult.name as String
                         val token = loginResult.token as String
                         viewModelScope.launch {
-                            pref.saveUser(UserModel(name, email, token))
+                            repository.saveUser(UserModel(name, email, token))
                         }
                     }
                 } else {

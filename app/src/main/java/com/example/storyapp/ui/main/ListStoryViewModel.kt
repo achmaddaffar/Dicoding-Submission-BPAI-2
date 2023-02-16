@@ -5,20 +5,23 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.storyapp.R
 import com.example.storyapp.data.local.UserModel
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.ListStoryItem
 import com.example.storyapp.data.remote.response.StoryResponse
 import com.example.storyapp.data.remote.retrofit.ApiConfig
+import com.example.storyapp.data.repository.StoryRepository
 import com.example.storyapp.utils.Event
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ListStoryViewModel(
-    private val pref: UserPreference, private val application: Application
+    private val repository: StoryRepository,
+    private val application: Application
 ) :
     ViewModel() {
 
@@ -35,37 +38,38 @@ class ListStoryViewModel(
         mIsLoading.value = isLoading
     }
 
-    fun getUser(): LiveData<UserModel> {
-        return pref.getUser().asLiveData()
-    }
+    fun getUser(): LiveData<UserModel> = repository.getUser()
 
-    fun getAllStory(token: String) {
-        showLoading(true)
-        val client = ApiConfig.getApiService()
-            .getAllStory(token)
-        client.enqueue(object : Callback<StoryResponse> {
-            override fun onResponse(
-                call: Call<StoryResponse>,
-                response: Response<StoryResponse>
-            ) {
-                showLoading(false)
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        mListStory.value = responseBody.listStory as List<ListStoryItem>
-                    }
-                } else {
-                    mSnackBarText.value = Event(application.getString(R.string.failed_to_connect))
-                    Log.e(TAG, "onFailure: ${response.message()}")
-                }
-            }
+    fun getAllStory(): LiveData<PagingData<ListStoryItem>> =
+        repository.getStory().cachedIn(viewModelScope)
 
-            override fun onFailure(call: Call<StoryResponse>, t: Throwable) {
-                mSnackBarText.value = Event(application.getString(R.string.failed_to_connect))
-                Log.e(TAG, "onFailure: ${t.message}")
-            }
-        })
-    }
+//    fun getAllStory(token: String) {
+//        showLoading(true)
+//        val client = ApiConfig.getApiService()
+//            .getAllStory(token)
+//        client.enqueue(object : Callback<StoryResponse> {
+//            override fun onResponse(
+//                call: Call<StoryResponse>,
+//                response: Response<StoryResponse>
+//            ) {
+//                showLoading(false)
+//                if (response.isSuccessful) {
+//                    val responseBody = response.body()
+//                    if (responseBody != null) {
+//                        mListStory.value = responseBody.listStory as List<ListStoryItem>
+//                    }
+//                } else {
+//                    mSnackBarText.value = Event(application.getString(R.string.failed_to_connect))
+//                    Log.e(TAG, "onFailure: ${response.message()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<StoryResponse>, t: Throwable) {
+//                mSnackBarText.value = Event(application.getString(R.string.failed_to_connect))
+//                Log.e(TAG, "onFailure: ${t.message}")
+//            }
+//        })
+//    }
 
     companion object {
         private const val TAG = "ListStoryViewModel"

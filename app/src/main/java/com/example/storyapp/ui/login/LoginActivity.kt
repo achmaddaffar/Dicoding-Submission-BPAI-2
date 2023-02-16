@@ -13,11 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.storyapp.R
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.databinding.ActivityLoginBinding
 import com.example.storyapp.ui.main.ListStoryActivity
 import com.example.storyapp.ui.register.RegisterActivity
-import com.example.storyapp.utils.Helper.Companion.dataStore
 import com.example.storyapp.utils.Helper.Companion.isValidEmail
 import com.example.storyapp.utils.Helper.Companion.isValidPassword
 import com.example.storyapp.utils.ViewModelFactory
@@ -42,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
             this,
-            ViewModelFactory(UserPreference.getInstance(dataStore), application)
+            ViewModelFactory(application)
         )[LoginViewModel::class.java]
 
         viewModel.apply {

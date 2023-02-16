@@ -56,7 +56,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
-            this, ViewModelFactory(UserPreference.getInstance(dataStore), application)
+            this, ViewModelFactory(application)
         )[SplashScreenViewModel::class.java]
 
         viewModel.apply {

@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.storyapp.R
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.RegisterResponse
 import com.example.storyapp.data.remote.retrofit.ApiConfig
 import com.example.storyapp.utils.Event
@@ -14,7 +13,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RegisterViewModel(private val pref: UserPreference, private val application: Application) :
+class RegisterViewModel(private val application: Application) :
     ViewModel() {
 
     private val mIsLoading = MutableLiveData<Boolean>()

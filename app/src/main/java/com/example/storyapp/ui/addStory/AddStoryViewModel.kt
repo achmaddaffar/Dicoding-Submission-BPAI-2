@@ -5,12 +5,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import com.example.storyapp.R
 import com.example.storyapp.data.local.UserModel
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.UploadStoryResponse
 import com.example.storyapp.data.remote.retrofit.ApiConfig
+import com.example.storyapp.data.repository.StoryRepository
 import com.example.storyapp.utils.Event
 import com.example.storyapp.utils.Helper
 import okhttp3.MediaType.Companion.toMediaType
@@ -24,7 +23,7 @@ import retrofit2.Response
 import java.io.File
 
 class AddStoryViewModel(
-    private val pref: UserPreference,
+    private val repository: StoryRepository,
     private val application: Application
 ) :
     ViewModel() {
@@ -42,9 +41,7 @@ class AddStoryViewModel(
         mTempFile.value = file
     }
 
-    fun getUser(): LiveData<UserModel> {
-        return pref.getUser().asLiveData()
-    }
+    fun getUser(): LiveData<UserModel> = repository.getUser()
 
     fun uploadStory(token: String, desc: String) {
         showLoading(true)
@@ -59,7 +56,7 @@ class AddStoryViewModel(
         )
 
         val client =
-            ApiConfig.getApiService().uploadStory(token, imageMultipart, description, null, null)
+            ApiConfig.getApiService().uploadStory(token, imageMultipart, description)
         client.enqueue(object : Callback<UploadStoryResponse> {
             override fun onResponse(
                 call: Call<UploadStoryResponse>,

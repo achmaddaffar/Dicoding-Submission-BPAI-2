@@ -19,12 +19,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.storyapp.R
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.databinding.ActivityAddStoryBinding
 import com.example.storyapp.ui.addStory.CameraActivity.Companion.IS_BACK_CAMERA_EXTRA
 import com.example.storyapp.ui.addStory.CameraActivity.Companion.PICTURE_EXTRA
 import com.example.storyapp.utils.Helper.Companion.bitmapToFile
-import com.example.storyapp.utils.Helper.Companion.dataStore
 import com.example.storyapp.utils.Helper.Companion.rotateBitmap
 import com.example.storyapp.utils.Helper.Companion.uriToFile
 import com.example.storyapp.utils.ViewModelFactory
@@ -135,7 +133,7 @@ class AddStoryActivity : AppCompatActivity() {
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
             this,
-            ViewModelFactory(UserPreference.getInstance(dataStore), application)
+            ViewModelFactory(application)
         )[AddStoryViewModel::class.java]
 
         viewModel.apply {

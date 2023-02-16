@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.example.storyapp.data.local.UserModel
 import com.example.storyapp.data.local.UserPreference
+import com.example.storyapp.data.repository.StoryRepository
 
-class SplashScreenViewModel(private val pref : UserPreference): ViewModel() {
-    fun getUser(): LiveData<UserModel> {
-        return pref.getUser().asLiveData()
-    }
+class SplashScreenViewModel(private val repository: StoryRepository): ViewModel() {
+    fun getUser(): LiveData<UserModel> = repository.getUser()
 
-    fun getTheme() = pref.getThemeSetting().asLiveData()
+
+    fun getTheme() = repository.getTheme()
 }

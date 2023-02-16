@@ -3,6 +3,7 @@ package com.example.storyapp.utils
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.storyapp.data.di.Injection
 import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.ui.addStory.AddStoryViewModel
 import com.example.storyapp.ui.login.LoginViewModel
@@ -12,29 +13,31 @@ import com.example.storyapp.ui.settings.SettingsViewModel
 import com.example.storyapp.ui.splash.SplashScreenViewModel
 
 class ViewModelFactory(
-    private val pref: UserPreference, private val application: Application
+    private val application: Application
 ) : ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        val repository = Injection.provideRepository(application)
+
         return when {
             modelClass.isAssignableFrom(SplashScreenViewModel::class.java) -> {
-                SplashScreenViewModel(pref) as T
+                SplashScreenViewModel(repository) as T
             }
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
-                LoginViewModel(pref, application) as T
+                LoginViewModel(repository, application) as T
             }
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> {
-                RegisterViewModel(pref, application) as T
+                RegisterViewModel(application) as T
             }
             modelClass.isAssignableFrom(ListStoryViewModel::class.java) -> {
-                ListStoryViewModel(pref, application) as T
+                ListStoryViewModel(repository, application) as T
             }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
-                SettingsViewModel(pref) as T
+                SettingsViewModel(repository) as T
             }
             modelClass.isAssignableFrom(AddStoryViewModel::class.java) -> {
-                AddStoryViewModel(pref, application) as T
+                AddStoryViewModel(repository, application) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }
