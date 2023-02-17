@@ -1,7 +1,5 @@
 package com.example.storyapp.data.repository
 
-import android.content.Context
-import androidx.lifecycle.asLiveData
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -9,18 +7,15 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.storyapp.data.database.RemoteKeys
 import com.example.storyapp.data.database.StoryDatabase
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.ListStoryItem
 import com.example.storyapp.data.remote.retrofit.ApiService
-import com.example.storyapp.utils.Helper.Companion.dataStore
 
 @OptIn(ExperimentalPagingApi::class)
 class StoryRemoteMediator(
     private val database: StoryDatabase,
     private val apiService: ApiService,
-    private  val context: Context
+    private val token: String
 ) : RemoteMediator<Int, ListStoryItem>() {
-    private val pref = UserPreference.getInstance(context.dataStore)
 
     override suspend fun load(
         loadType: LoadType,
@@ -48,8 +43,8 @@ class StoryRemoteMediator(
         }
 
         try {
-            val token =  "Bearer ${pref.getUser().asLiveData().value?.token}"
-            val responseData = apiService.getAllStory(token, page, state.config.pageSize)
+            val token =  "Bearer $token"
+            val responseData = apiService.getAllStory(token, page, state.config.pageSize).listStory as List<ListStoryItem>
             val endOfPaginationReached = responseData.isEmpty()
 
             database.withTransaction {

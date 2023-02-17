@@ -11,21 +11,33 @@ import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.ListStoryItem
 import com.example.storyapp.data.remote.retrofit.ApiService
 import com.example.storyapp.utils.Helper.Companion.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class StoryRepository(
     private val storyDatabase: StoryDatabase,
     private val apiService: ApiService,
-    private val context: Context
+    context: Context
 ) {
     private val pref = UserPreference.getInstance(context.dataStore)
 
+    private fun getToken(): String {
+        val result = runBlocking {
+            pref.getUser().first()
+        }
+        return result.token
+    }
+
     fun getStory(): LiveData<PagingData<ListStoryItem>> {
+        val token = getToken()
+        Log.e(TAG, "GET STORY?")
+
         @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
                 pageSize = 5
             ),
-            remoteMediator = StoryRemoteMediator(storyDatabase, apiService, context),
+            remoteMediator = StoryRemoteMediator(storyDatabase, apiService, token),
             pagingSourceFactory = { storyDatabase.storyDao().getAllStory() }
         ).liveData
     }
@@ -35,12 +47,12 @@ class StoryRepository(
     suspend fun deleteUser() = pref.deleteUser()
 
     suspend fun saveUser(user: UserModel) = pref.saveUser(user)
-    // INFO TOKEN USER DI REMOTE MEDIATOR ?????
 
     suspend fun saveTheme(isDarkModeActive: Boolean) = pref.saveThemeSetting(isDarkModeActive)
 
     fun getTheme() = pref.getThemeSetting().asLiveData()
 
-    // APAKAH DATA CLASS ENTITIY BUAT DATABASE SAMA RESPONSE REPOSITORY ITU BOLEH JADI 1?
-    //
+    companion object {
+        private const val TAG = "StoryRepository"
+    }
 }

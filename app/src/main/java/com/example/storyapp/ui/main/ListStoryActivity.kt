@@ -5,12 +5,14 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.storyapp.R
 import com.example.storyapp.data.remote.response.ListStoryItem
@@ -20,6 +22,7 @@ import com.example.storyapp.ui.detailStory.DetailStoryActivity
 import com.example.storyapp.ui.settings.SettingsActivity
 import com.example.storyapp.utils.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 class ListStoryActivity : AppCompatActivity() {
@@ -115,13 +118,18 @@ class ListStoryActivity : AppCompatActivity() {
                 )
             }
         })
+
         binding.rvStoryList.adapter = adapter.withLoadStateFooter(
             footer = LoadingStateAdapter {
                 adapter.retry()
             }
         )
-        viewModel.story.observe(this) {
-            adapter.submitData(lifecycle, it)
+
+        lifecycleScope.launch {
+            viewModel.story.observe(this@ListStoryActivity) {
+                Log.d(TAG, "Submitting list to adapter")
+                adapter.submitData(lifecycle, it)
+            }
         }
     }
 
@@ -156,5 +164,6 @@ class ListStoryActivity : AppCompatActivity() {
 
     companion object {
         const val STORY_EXTRA = "story"
+        private const val TAG = "ListStoryActivity"
     }
 }

@@ -11,7 +11,7 @@ import com.example.storyapp.databinding.ItemLoadingBinding
 class LoadingStateAdapter(private val retry: () -> Unit) :
     LoadStateAdapter<LoadingStateAdapter.LoadingStateViewHolder>() {
 
-    inner class LoadingStateViewHolder(private val binding: ItemLoadingBinding, retry: () -> Unit) :
+    class LoadingStateViewHolder(private val binding: ItemLoadingBinding, retry: () -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
