@@ -13,13 +13,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.storyapp.R
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.data.remote.response.ListStoryItem
 import com.example.storyapp.databinding.ActivityListStoryBinding
 import com.example.storyapp.ui.addStory.AddStoryActivity
 import com.example.storyapp.ui.detailStory.DetailStoryActivity
 import com.example.storyapp.ui.settings.SettingsActivity
-import com.example.storyapp.utils.Helper.Companion.dataStore
 import com.example.storyapp.utils.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlin.system.exitProcess
@@ -71,7 +69,7 @@ class ListStoryActivity : AppCompatActivity() {
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
             this,
-            ViewModelFactory(UserPreference.getInstance(dataStore), application)
+            ViewModelFactory(application)
         )[ListStoryViewModel::class.java]
 
         viewModel.apply {
@@ -101,19 +99,11 @@ class ListStoryActivity : AppCompatActivity() {
                         .show()
                 }
             }
-
-            listStory.observe(this@ListStoryActivity) { listStory ->
-                setStoryList(listStory)
-            }
-
-            getUser().observe(this@ListStoryActivity) { user ->
-                viewModel.getAllStory("Bearer ${user.token}")
-            }
         }
     }
 
-    private fun setStoryList(listStory: List<ListStoryItem>) {
-        val adapter = ListStoryAdapter(listStory)
+    private fun setStoryList() {
+        val adapter = ListStoryAdapter()
         adapter.setOnItemClickCallback(object : ListStoryAdapter.OnItemClickCallback {
             override fun onItemClicked(data: ListStoryItem) {
                 val intent = Intent(this@ListStoryActivity, DetailStoryActivity::class.java)
@@ -125,10 +115,19 @@ class ListStoryActivity : AppCompatActivity() {
                 )
             }
         })
-        binding.rvStoryList.adapter = adapter
+        binding.rvStoryList.adapter = adapter.withLoadStateFooter(
+            footer = LoadingStateAdapter {
+                adapter.retry()
+            }
+        )
+        viewModel.story.observe(this) {
+            adapter.submitData(lifecycle, it)
+        }
     }
 
     private fun setupAction() {
+        setStoryList()
+
         dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_loading)
         dialog.setCancelable(false)

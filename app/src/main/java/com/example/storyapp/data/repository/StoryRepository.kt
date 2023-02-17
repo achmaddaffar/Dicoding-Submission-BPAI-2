@@ -1,6 +1,7 @@
 package com.example.storyapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.paging.*
@@ -34,11 +35,12 @@ class StoryRepository(
     suspend fun deleteUser() = pref.deleteUser()
 
     suspend fun saveUser(user: UserModel) = pref.saveUser(user)
+    // INFO TOKEN USER DI REMOTE MEDIATOR ?????
 
     suspend fun saveTheme(isDarkModeActive: Boolean) = pref.saveThemeSetting(isDarkModeActive)
 
     fun getTheme() = pref.getThemeSetting().asLiveData()
 
-    // UBAH PARAMETER SMUA VM JADI APPLICATION CONTEXT
     // APAKAH DATA CLASS ENTITIY BUAT DATABASE SAMA RESPONSE REPOSITORY ITU BOLEH JADI 1?
+    //
 }

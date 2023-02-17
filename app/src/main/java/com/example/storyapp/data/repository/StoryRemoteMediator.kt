@@ -18,7 +18,7 @@ import com.example.storyapp.utils.Helper.Companion.dataStore
 class StoryRemoteMediator(
     private val database: StoryDatabase,
     private val apiService: ApiService,
-    context: Context
+    private  val context: Context
 ) : RemoteMediator<Int, ListStoryItem>() {
     private val pref = UserPreference.getInstance(context.dataStore)
 
@@ -48,7 +48,7 @@ class StoryRemoteMediator(
         }
 
         try {
-            val token = pref.getUser().asLiveData().value?.token as String
+            val token =  "Bearer ${pref.getUser().asLiveData().value?.token}"
             val responseData = apiService.getAllStory(token, page, state.config.pageSize)
             val endOfPaginationReached = responseData.isEmpty()
 
@@ -60,7 +60,7 @@ class StoryRemoteMediator(
                 val prevKey = if (page == 1) null else page - 1
                 val nextKey = if (endOfPaginationReached) null else page + 1
                 val keys = responseData.map {
-                    RemoteKeys(id = it.id as String, prevKey = prevKey, nextKey = nextKey)
+                    RemoteKeys(id = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
                 database.remoteKeysDao().insertAll(keys)
                 database.storyDao().insertStory(responseData)
@@ -78,13 +78,13 @@ class StoryRemoteMediator(
 
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ListStoryItem>): RemoteKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()?.let { data ->
-            database.remoteKeysDao().getRemoteKeysId(data.id as String)
+            database.remoteKeysDao().getRemoteKeysId(data.id)
         }
     }
 
     private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ListStoryItem>): RemoteKeys? {
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()?.let { data ->
-            database.remoteKeysDao().getRemoteKeysId(data.id as String)
+            database.remoteKeysDao().getRemoteKeysId(data.id)
         }
     }
 

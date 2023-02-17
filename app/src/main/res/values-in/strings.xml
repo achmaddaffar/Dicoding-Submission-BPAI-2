@@ -49,4 +49,6 @@
     <string name="change_language">Ubah bahasa</string>
     <string name="camera_request_title">Ingin Mengakses Kamera</string>
     <string name="camera_request_msg">Ini memungkinkan Anda melakukan hal-hal seperti mengambil dan membagikan foto serta menggunakan fitur dan efek khusus lainnya</string>
+    <string name="timeout">Waktu habis</string>
+    <string name="retry">Coba lagi</string>
 </resources>

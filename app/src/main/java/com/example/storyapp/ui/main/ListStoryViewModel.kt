@@ -1,23 +1,15 @@
 package com.example.storyapp.ui.main
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.storyapp.R
-import com.example.storyapp.data.local.UserModel
 import com.example.storyapp.data.remote.response.ListStoryItem
-import com.example.storyapp.data.remote.response.StoryResponse
-import com.example.storyapp.data.remote.retrofit.ApiConfig
 import com.example.storyapp.data.repository.StoryRepository
 import com.example.storyapp.utils.Event
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class ListStoryViewModel(
     private val repository: StoryRepository,
@@ -28,9 +20,6 @@ class ListStoryViewModel(
     private val mIsLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = mIsLoading
 
-    private val mListStory = MutableLiveData<List<ListStoryItem>>()
-    val listStory: LiveData<List<ListStoryItem>> = mListStory
-
     private val mSnackBarText = MutableLiveData<Event<String>>()
     val snackBarText: LiveData<Event<String>> = mSnackBarText
 
@@ -38,9 +27,7 @@ class ListStoryViewModel(
         mIsLoading.value = isLoading
     }
 
-    fun getUser(): LiveData<UserModel> = repository.getUser()
-
-    fun getAllStory(): LiveData<PagingData<ListStoryItem>> =
+    val story: LiveData<PagingData<ListStoryItem>> =
         repository.getStory().cachedIn(viewModelScope)
 
 //    fun getAllStory(token: String) {
