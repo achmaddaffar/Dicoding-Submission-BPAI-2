@@ -1,6 +1,5 @@
 package com.example.storyapp.ui.main
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter

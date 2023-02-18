@@ -30,7 +30,6 @@ class StoryRepository(
 
     fun getStory(): LiveData<PagingData<ListStoryItem>> {
         val token = getToken()
-        Log.e(TAG, "GET STORY?")
 
         @OptIn(ExperimentalPagingApi::class)
         return Pager(

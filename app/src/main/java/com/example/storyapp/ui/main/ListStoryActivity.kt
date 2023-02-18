@@ -29,6 +29,7 @@ class ListStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityListStoryBinding
     private lateinit var viewModel: ListStoryViewModel
     private lateinit var dialog: Dialog
+    private lateinit var adapter: ListStoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,11 +103,22 @@ class ListStoryActivity : AppCompatActivity() {
                         .show()
                 }
             }
+
+            story.observe(this@ListStoryActivity) { pagingData ->
+                Log.d(TAG, "Submitting list to adapter")
+                adapter.submitData(lifecycle, pagingData)
+//                    adapter.refresh()
+//                    adapter.loadStateFlow
+//                        .distinctUntilChangedBy { it.refresh }
+//                        .filter { it.refresh is LoadState.NotLoading }
+//                        .collect { binding.rvStoryList.scrollToPosition(0) }
+//                    binding.rvStoryList.scrollToPosition(0)
+            }
         }
     }
 
     private fun setStoryList() {
-        val adapter = ListStoryAdapter()
+        adapter = ListStoryAdapter()
         adapter.setOnItemClickCallback(object : ListStoryAdapter.OnItemClickCallback {
             override fun onItemClicked(data: ListStoryItem) {
                 val intent = Intent(this@ListStoryActivity, DetailStoryActivity::class.java)
@@ -124,13 +136,6 @@ class ListStoryActivity : AppCompatActivity() {
                 adapter.retry()
             }
         )
-
-        lifecycleScope.launch {
-            viewModel.story.observe(this@ListStoryActivity) {
-                Log.d(TAG, "Submitting list to adapter")
-                adapter.submitData(lifecycle, it)
-            }
-        }
     }
 
     private fun setupAction() {

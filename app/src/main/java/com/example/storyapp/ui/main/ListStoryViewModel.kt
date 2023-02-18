@@ -23,10 +23,6 @@ class ListStoryViewModel(
     private val mSnackBarText = MutableLiveData<Event<String>>()
     val snackBarText: LiveData<Event<String>> = mSnackBarText
 
-    private fun showLoading(isLoading: Boolean) {
-        mIsLoading.value = isLoading
-    }
-
     val story: LiveData<PagingData<ListStoryItem>> =
         repository.getStory().cachedIn(viewModelScope)
 
@@ -57,8 +53,4 @@ class ListStoryViewModel(
 //            }
 //        })
 //    }
-
-    companion object {
-        private const val TAG = "ListStoryViewModel"
-    }
 }
