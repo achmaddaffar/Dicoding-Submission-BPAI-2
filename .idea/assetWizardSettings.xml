@@ -316,7 +316,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/C:/Users/Achmad%20Daffa%20Rabbani/AppData/Local/Android/Sdk/icons/material/materialicons/cameraswitch/baseline_cameraswitch_24.xml" />
+                                      <entry key="url" value="file:/C:/Users/Achmad%20Daffa%20Rabbani/AppData/Local/Android/Sdk/icons/material/materialicons/map/baseline_map_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -326,7 +326,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_cameraswitch_24" />
+                            <entry key="outputName" value="baseline_map_24" />
                             <entry key="sourceFile" value="C:\Users\Achmad Daffa Rabbani\OneDrive\Pictures\Proyek\logo\dicoding_logo.svg" />
                           </map>
                         </option>

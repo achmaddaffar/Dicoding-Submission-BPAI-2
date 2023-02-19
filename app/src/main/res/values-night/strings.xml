@@ -52,4 +52,6 @@
     <string name="camera_request_msg">This lets you do things like take and share photos and use other special features and effects</string>
     <string name="timeout">Timeout</string>
     <string name="retry">Retry</string>
+    <string name="map">Map</string>
+    <string name="access_location">Would Like to Access This Device\'s Location</string>
 </resources>

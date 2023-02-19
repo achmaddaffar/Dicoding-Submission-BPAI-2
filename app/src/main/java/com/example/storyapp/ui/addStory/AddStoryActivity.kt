@@ -22,6 +22,7 @@ import com.example.storyapp.R
 import com.example.storyapp.databinding.ActivityAddStoryBinding
 import com.example.storyapp.ui.addStory.CameraActivity.Companion.IS_BACK_CAMERA_EXTRA
 import com.example.storyapp.ui.addStory.CameraActivity.Companion.PICTURE_EXTRA
+import com.example.storyapp.ui.main.ListStoryActivity
 import com.example.storyapp.utils.Helper.Companion.bitmapToFile
 import com.example.storyapp.utils.Helper.Companion.rotateBitmap
 import com.example.storyapp.utils.Helper.Companion.uriToFile
@@ -70,9 +71,8 @@ class AddStoryActivity : AppCompatActivity() {
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!allPermissionsGranted()) {
+        if (!allPermissionsGranted())
             requestPermission()
-        }
 
         setupViewModel()
         setupAction()
@@ -144,7 +144,9 @@ class AddStoryActivity : AppCompatActivity() {
             snackBarText.observe(this@AddStoryActivity) {
                 it.getContentIfNotHandled()?.let { snackBarText ->
                     if (snackBarText != getString(R.string.failed_to_connect))
-                        finish()
+                        startActivity(
+                            Intent(this@AddStoryActivity, ListStoryActivity::class.java)
+                        ).also { finish() }
 
                     Snackbar.make(
                         window.decorView.rootView,

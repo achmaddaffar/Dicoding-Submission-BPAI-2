@@ -12,17 +12,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.storyapp.R
 import com.example.storyapp.data.remote.response.ListStoryItem
 import com.example.storyapp.databinding.ActivityListStoryBinding
 import com.example.storyapp.ui.addStory.AddStoryActivity
 import com.example.storyapp.ui.detailStory.DetailStoryActivity
+import com.example.storyapp.ui.maps.MapsActivity
 import com.example.storyapp.ui.settings.SettingsActivity
 import com.example.storyapp.utils.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 class ListStoryActivity : AppCompatActivity() {
@@ -45,7 +44,7 @@ class ListStoryActivity : AppCompatActivity() {
         AlertDialog.Builder(this).apply {
             setMessage(getString(R.string.are_you_sure))
             setPositiveButton(getString(R.string.yes)) { _, _ ->
-                finish()
+                finishAffinity()
                 exitProcess(0)
             }
             setNegativeButton(getString(R.string.no), null)
@@ -61,6 +60,13 @@ class ListStoryActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(
+                    intent,
+                    ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
+                )
+            }
+            R.id.action_map -> {
+                val intent = Intent(this, MapsActivity::class.java)
                 startActivity(
                     intent,
                     ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
@@ -105,14 +111,8 @@ class ListStoryActivity : AppCompatActivity() {
             }
 
             story.observe(this@ListStoryActivity) { pagingData ->
-                Log.d(TAG, "Submitting list to adapter")
+                Log.d(TAG, "Submitting list to adapter  THIS")
                 adapter.submitData(lifecycle, pagingData)
-//                    adapter.refresh()
-//                    adapter.loadStateFlow
-//                        .distinctUntilChangedBy { it.refresh }
-//                        .filter { it.refresh is LoadState.NotLoading }
-//                        .collect { binding.rvStoryList.scrollToPosition(0) }
-//                    binding.rvStoryList.scrollToPosition(0)
             }
         }
     }
