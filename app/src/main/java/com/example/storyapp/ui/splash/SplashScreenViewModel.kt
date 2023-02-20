@@ -10,6 +10,5 @@ import com.example.storyapp.data.repository.StoryRepository
 class SplashScreenViewModel(private val repository: StoryRepository): ViewModel() {
     fun getUser(): LiveData<UserModel> = repository.getUser()
 
-
     fun getTheme() = repository.getTheme()
 }

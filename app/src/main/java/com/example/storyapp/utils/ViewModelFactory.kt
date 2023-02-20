@@ -25,10 +25,10 @@ class ViewModelFactory(
                 SplashScreenViewModel(repository) as T
             }
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
-                LoginViewModel(repository, application) as T
+                LoginViewModel(repository) as T
             }
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> {
-                RegisterViewModel(application) as T
+                RegisterViewModel(repository) as T
             }
             modelClass.isAssignableFrom(ListStoryViewModel::class.java) -> {
                 ListStoryViewModel(repository) as T
@@ -37,7 +37,7 @@ class ViewModelFactory(
                 SettingsViewModel(repository) as T
             }
             modelClass.isAssignableFrom(AddStoryViewModel::class.java) -> {
-                AddStoryViewModel(repository, application) as T
+                AddStoryViewModel(repository) as T
             }
             modelClass.isAssignableFrom(MapsViewModel::class.java) -> {
                 MapsViewModel(repository) as T

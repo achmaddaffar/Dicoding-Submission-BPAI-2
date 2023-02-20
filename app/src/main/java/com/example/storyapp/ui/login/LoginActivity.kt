@@ -8,18 +8,19 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.storyapp.R
+import com.example.storyapp.data.local.UserModel
 import com.example.storyapp.databinding.ActivityLoginBinding
 import com.example.storyapp.ui.main.ListStoryActivity
 import com.example.storyapp.ui.register.RegisterActivity
 import com.example.storyapp.utils.Helper.Companion.isValidEmail
 import com.example.storyapp.utils.Helper.Companion.isValidPassword
+import com.example.storyapp.utils.ScreenState
 import com.example.storyapp.utils.ViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -49,45 +50,6 @@ class LoginActivity : AppCompatActivity() {
                     showView()
                 it.getContentIfNotHandled()?.let {
                     playAnimation()
-                }
-            }
-
-            snackBarText.observe(this@LoginActivity) {
-                it.getContentIfNotHandled()?.let { snackBarText ->
-                    Snackbar.make(
-                        window.decorView.rootView,
-                        snackBarText,
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .setBackgroundTint(
-                            ContextCompat.getColor(
-                                this@LoginActivity,
-                                R.color.red_light
-                            )
-                        )
-                        .setTextColor(
-                            ContextCompat.getColor(
-                                this@LoginActivity,
-                                R.color.black
-                            )
-                        )
-                        .show()
-                }
-            }
-
-            isLoading.observe(this@LoginActivity) { isLoading ->
-                showLoading(isLoading)
-            }
-
-            loginError.observe(this@LoginActivity) { loginError ->
-                showLoginInvalid(loginError)
-
-                if(!loginError) {
-                    val intent = Intent(this@LoginActivity, ListStoryActivity::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                    finish()
                 }
             }
         }
@@ -175,7 +137,36 @@ class LoginActivity : AppCompatActivity() {
                 binding.let {
                     val email = it.edLoginEmail.text.toString()
                     val password = it.edLoginPassword.text.toString()
-                    viewModel.login(email, password)
+                    viewModel.login(email, password).observe(this@LoginActivity) { state ->
+                        when (state) {
+                            is ScreenState.Loading -> {
+                                showLoading(true)
+                                showLoginInvalid(false)
+                            }
+                            is ScreenState.Success -> {
+                                showLoading(false)
+                                val name = state.data?.loginResult?.name as String
+                                val token = state.data.loginResult.token as String
+                                viewModel.saveUser(UserModel(name, email, token))
+                                val intent =
+                                    Intent(this@LoginActivity, ListStoryActivity::class.java)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                                finish()
+                            }
+                            is ScreenState.Error -> {
+                                showLoading(false)
+                                val error = state.message as String
+                                Log.e(TAG, "onError: $error")
+                                if (error.contains("401"))
+                                    showLoginInvalid(true)
+                                else
+                                    showLoginInvalid(true, error)
+                            }
+                            else -> {}
+                        }
+                    }
                 }
             }
 
@@ -210,7 +201,13 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLoginInvalid(isError: Boolean) {
+    private fun showLoginInvalid(isError: Boolean, msg: String? = null) {
+        val errorMessage = msg ?: getString(R.string.login_invalid_error)
+        binding.tvError.text = errorMessage
         binding.cvLoginInvalid.visibility = if (isError) View.VISIBLE else View.GONE
+    }
+
+    companion object {
+        private const val TAG = "LoginActivity"
     }
 }

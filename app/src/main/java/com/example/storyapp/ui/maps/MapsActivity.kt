@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -127,9 +128,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun determineState(state: ScreenState<List<ListStoryItem>>?) {
         when (state) {
             is ScreenState.Loading -> {
+                showErrorLayout(false)
                 dialog.show()
             }
             is ScreenState.Success -> {
+                showErrorLayout(false)
                 dialog.hide()
                 if (state.data != null) {
                     val storyList = state.data
@@ -163,9 +166,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             is ScreenState.Error -> {
                 dialog.hide()
                 Log.e(TAG, "onError: ${state.message}")
+                showErrorLayout(true)
             }
             else -> {}
         }
+    }
+
+    private fun showErrorLayout(isError: Boolean) {
+        binding.errorLayout.visibility = if (isError) View.VISIBLE else View.GONE
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

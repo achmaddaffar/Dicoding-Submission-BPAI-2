@@ -56,4 +56,7 @@
     <string name="map">Map</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="access_location">Would Like to Access This Device\'s Location</string>
+    <string name="something_went_wrong_please_try_again_later">Something went wrong. Please try again later.</string>
+    <string name="enable_location">Enable Location</string>
+    <string name="error">Error</string>
 </resources>

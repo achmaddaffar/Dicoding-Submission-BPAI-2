@@ -6,11 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -26,17 +28,22 @@ import com.example.storyapp.ui.main.ListStoryActivity
 import com.example.storyapp.utils.Helper.Companion.bitmapToFile
 import com.example.storyapp.utils.Helper.Companion.rotateBitmap
 import com.example.storyapp.utils.Helper.Companion.uriToFile
+import com.example.storyapp.utils.ScreenState
 import com.example.storyapp.utils.ViewModelFactory
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.io.File
 
 class AddStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddStoryBinding
     private lateinit var viewModel: AddStoryViewModel
     private lateinit var dialog: Dialog
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private var getFile: File? = null
-    private var token: String? = null
+    private var lat: Double? = null
+    private var lon: Double? = null
+    private var locationToggle: Boolean = false
 
     @Suppress("DEPRECATION")
     private val launcherIntentCameraX = registerForActivityResult(
@@ -66,6 +73,21 @@ class AddStoryActivity : AppCompatActivity() {
         }
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false -> {
+                    getMyLastLocation()
+                }
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false -> {
+                    getMyLastLocation()
+                }
+                else -> {}
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
@@ -73,6 +95,8 @@ class AddStoryActivity : AppCompatActivity() {
 
         if (!allPermissionsGranted())
             requestPermission()
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setupViewModel()
         setupAction()
@@ -102,10 +126,33 @@ class AddStoryActivity : AppCompatActivity() {
         }
     }
 
+    private fun getMyLastLocation() {
+        if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+            checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    lat = location.latitude
+                    lon = location.longitude
+                }
+            }
+        } else {
+            requestPermissionLauncher.launch(LOCATION_PERMISSIONS)
+        }
+    }
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     private fun showPermissionDialog() {
         AlertDialog.Builder(this).apply {
             setTitle(StringBuilder("\"${getString(R.string.app_name)}\" ").append(getString(R.string.camera_request_title)))
             setMessage(getString(R.string.camera_request_msg))
+            setCancelable(false)
             setPositiveButton(R.string.yes) { dialogInterface, _ ->
                 dialogInterface.dismiss()
                 val intent = Intent()
@@ -114,7 +161,7 @@ class AddStoryActivity : AppCompatActivity() {
                 intent.data = uri
                 startActivity(intent)
             }
-            setNegativeButton("NO") { dialogInterface, _ -> dialogInterface.dismiss() }
+            setNegativeButton(getString(R.string.no)) { dialogInterface, _ -> dialogInterface.dismiss() }
             show()
         }
     }
@@ -137,42 +184,6 @@ class AddStoryActivity : AppCompatActivity() {
         )[AddStoryViewModel::class.java]
 
         viewModel.apply {
-            isLoading.observe(this@AddStoryActivity) { isLoading ->
-                showLoading(isLoading)
-            }
-
-            snackBarText.observe(this@AddStoryActivity) {
-                it.getContentIfNotHandled()?.let { snackBarText ->
-                    if (snackBarText != getString(R.string.failed_to_connect))
-                        startActivity(
-                            Intent(this@AddStoryActivity, ListStoryActivity::class.java)
-                        ).also { finish() }
-
-                    Snackbar.make(
-                        window.decorView.rootView,
-                        snackBarText,
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .setBackgroundTint(
-                            ContextCompat.getColor(
-                                this@AddStoryActivity,
-                                R.color.red_light
-                            )
-                        )
-                        .setTextColor(
-                            ContextCompat.getColor(
-                                this@AddStoryActivity,
-                                R.color.black
-                            )
-                        )
-                        .show()
-                }
-            }
-
-            getUser().observe(this@AddStoryActivity) { user ->
-                token = "Bearer ${user.token}"
-            }
-
             tempFile.observe(this@AddStoryActivity) { file ->
                 val bitmap = BitmapFactory.decodeFile(file.path)
                 binding.ivPreviewImage.setImageBitmap(bitmap)
@@ -188,12 +199,6 @@ class AddStoryActivity : AppCompatActivity() {
             dialog.window?.setBackgroundDrawable(ColorDrawable(0))
 
         binding.apply {
-            buttonAdd.setOnClickListener {
-                viewModel.uploadStory(
-                    token as String,
-                    binding.edAddDescription.text.toString()
-                )
-            }
             btnGallery.setOnClickListener { startGallery() }
             btnCamera.setOnClickListener {
                 requestPermission()
@@ -221,6 +226,45 @@ class AddStoryActivity : AppCompatActivity() {
                     else null
                 }
             })
+
+            buttonAdd.setOnClickListener {
+                val file = getFile as File
+                val desc = edAddDescription.text.toString()
+                if (!locationToggle) {
+                    lat = null
+                    lon = null
+                }
+                viewModel.uploadStory(file, desc, lat = lat, lon = lon)
+                    .observe(this@AddStoryActivity) { state ->
+                        when (state) {
+                            is ScreenState.Loading -> {
+                                showLoading(true)
+                            }
+                            is ScreenState.Success -> {
+                                showLoading(false)
+                                val intent =
+                                    Intent(this@AddStoryActivity, ListStoryActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            is ScreenState.Error -> {
+                                showLoading(false)
+                                Log.e(TAG, "onError: ${state.data?.message}")
+                                showError()
+                            }
+                            else -> {}
+                        }
+                    }
+            }
+
+            switchLocation.setOnCheckedChangeListener { _, isChecked ->
+                if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                    checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                )
+                    locationToggle = isChecked
+                else
+                    getMyLastLocation()
+            }
         }
     }
 
@@ -254,9 +298,27 @@ class AddStoryActivity : AppCompatActivity() {
         if (isLoading) dialog.show() else dialog.cancel()
     }
 
+    private fun showError() {
+        AlertDialog.Builder(this).apply {
+            setTitle(getString(R.string.error))
+            setCancelable(false)
+            setMessage(getString(R.string.something_went_wrong_please_try_again_later))
+            setPositiveButton(getString(R.string.yes)) { dialogInterface, _ ->
+                dialogInterface.dismiss()
+                finish()
+            }
+            show()
+        }
+    }
+
     companion object {
         const val CAMERA_X_RESULT = 200
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private val LOCATION_PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
         private const val REQUEST_CODE_PERMISSIONS = 10
+        private const val TAG = "AddStoryActivity"
     }
 }

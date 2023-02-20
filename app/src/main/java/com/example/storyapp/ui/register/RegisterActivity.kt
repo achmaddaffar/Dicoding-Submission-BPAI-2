@@ -8,18 +8,18 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.storyapp.R
 import com.example.storyapp.databinding.ActivityRegisterBinding
 import com.example.storyapp.ui.login.LoginActivity
 import com.example.storyapp.utils.Helper.Companion.isValidEmail
 import com.example.storyapp.utils.Helper.Companion.isValidPassword
+import com.example.storyapp.utils.ScreenState
 import com.example.storyapp.utils.ViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
@@ -44,53 +44,12 @@ class RegisterActivity : AppCompatActivity() {
         )[RegisterViewModel::class.java]
 
         viewModel.apply {
-            isLoading.observe(this@RegisterActivity) { isLoading ->
-                showLoading(isLoading)
-            }
-
-            snackBarText.observe(this@RegisterActivity) {
-                it.getContentIfNotHandled()?.let { snackBarText ->
-                    Snackbar.make(
-                        window.decorView.rootView,
-                        snackBarText,
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .setBackgroundTint(
-                            ContextCompat.getColor(
-                                this@RegisterActivity,
-                                R.color.red_light
-                            )
-                        )
-                        .setTextColor(
-                            ContextCompat.getColor(
-                                this@RegisterActivity,
-                                R.color.black
-                            )
-                        )
-                        .show()
-                }
-            }
-
             isAnimate.observe(this@RegisterActivity) {
                 if (it.hasBeenHandled)
                     showView()
                 it.getContentIfNotHandled()?.let {
                     playAnimation()
                 }
-            }
-
-            isUserCreated.observe(this@RegisterActivity) {
-                if (it == true)
-                    AlertDialog.Builder(this@RegisterActivity).apply {
-                        setTitle(getString(R.string.registered))
-                        setMessage(getString(R.string.account_created_successfully))
-                        setCancelable(false)
-                        setPositiveButton(getString(R.string.sign_in)) { _, _ ->
-                            finish()
-                        }
-                        create()
-                        show()
-                    }
             }
         }
     }
@@ -227,6 +186,44 @@ class RegisterActivity : AppCompatActivity() {
                     val email = it.edRegisterEmail.text.toString()
                     val password = it.edRegisterPassword.text.toString()
                     viewModel.registerUser(name, email, password)
+                        .observe(this@RegisterActivity) { state ->
+                            when (state) {
+                                is ScreenState.Loading -> {
+                                    showLoading(true)
+                                }
+                                is ScreenState.Success -> {
+                                    showLoading(false)
+                                    AlertDialog.Builder(this@RegisterActivity).apply {
+                                        setTitle(getString(R.string.registered))
+                                        setMessage(getString(R.string.account_created_successfully))
+                                        setCancelable(false)
+                                        setPositiveButton(getString(R.string.sign_in)) { _, _ ->
+                                            finish()
+                                        }
+                                        create()
+                                        show()
+                                    }
+                                }
+                                is ScreenState.Error -> {
+                                    showLoading(false)
+                                    Log.e(TAG, "onError: ${state.message}")
+                                    var error = state.message as String
+                                    if (error.contains("400"))
+                                        error = getString(R.string.email_is_already_taken)
+                                    AlertDialog.Builder(this@RegisterActivity).apply {
+                                        setTitle(getString(R.string.error))
+                                        setMessage(error)
+                                        setCancelable(false)
+                                        setPositiveButton(getString(R.string.yes)) { dialogInterface, _ ->
+                                            dialogInterface.cancel()
+                                        }
+                                        create()
+                                        show()
+                                    }
+                                }
+                                else -> {}
+                            }
+                        }
                 }
             }
 
@@ -289,5 +286,9 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun showLoading(isLoading: Boolean) {
         if (isLoading) dialog.show() else dialog.cancel()
+    }
+
+    companion object {
+        private const val TAG = "RegisterActivity"
     }
 }
