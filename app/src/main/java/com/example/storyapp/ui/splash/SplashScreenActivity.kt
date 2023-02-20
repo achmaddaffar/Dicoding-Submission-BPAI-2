@@ -15,12 +15,9 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModelProvider
-import com.example.storyapp.data.local.UserModel
-import com.example.storyapp.data.local.UserPreference
 import com.example.storyapp.databinding.ActivitySplashScreenBinding
 import com.example.storyapp.ui.login.LoginActivity
 import com.example.storyapp.ui.main.ListStoryActivity
-import com.example.storyapp.utils.Helper.Companion.dataStore
 import com.example.storyapp.utils.ViewModelFactory
 
 @SuppressLint("CustomSplashScreen")

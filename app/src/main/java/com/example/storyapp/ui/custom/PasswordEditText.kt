@@ -2,7 +2,6 @@ package com.example.storyapp.ui.custom
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -12,7 +11,6 @@ import androidx.core.content.ContextCompat
 import com.example.storyapp.R
 
 class PasswordEditText: AppCompatEditText {
-    private lateinit var clearButtonImage: Drawable
 
     constructor(context: Context): super(context) {
         init()
@@ -49,17 +47,4 @@ class PasswordEditText: AppCompatEditText {
         })
     }
 
-    private fun setButtonDrawables(
-        startOfTheText: Drawable? = null,
-        topOfTheText:Drawable? = null,
-        endOfTheText:Drawable? = null,
-        bottomOfTheText: Drawable? = null
-    ) {
-        setCompoundDrawablesWithIntrinsicBounds(
-            startOfTheText,
-            topOfTheText,
-            endOfTheText,
-            bottomOfTheText
-        )
-    }
 }

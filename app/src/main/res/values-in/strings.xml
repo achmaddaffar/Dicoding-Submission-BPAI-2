@@ -52,4 +52,7 @@
     <string name="timeout">Waktu habis</string>
     <string name="retry">Coba lagi</string>
     <string name="map">Peta</string>
+    <string name="access_location">Ingin Mengakses Lokasi Perangkat Ini</string>
+    <string name="something_went_wrong_please_try_again_later">Terjadi kesalahan, harap coba lagi</string>
+    <string name="enable_location">Aktifkan Lokasi</string>
 </resources>

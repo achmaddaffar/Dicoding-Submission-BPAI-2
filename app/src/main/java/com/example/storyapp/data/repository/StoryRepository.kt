@@ -46,8 +46,7 @@ class StoryRepository(
                 val response = apiService.login(email, password)
                 if (!(response.error as Boolean)) {
                     emit(ScreenState.Success(response))
-                }
-                else
+                } else
                     emit(ScreenState.Error(response.message as String))
             } catch (e: Exception) {
                 emit(e.localizedMessage?.let { ScreenState.Error(it) })
@@ -116,7 +115,8 @@ class StoryRepository(
                 val longitude = lon?.toFloat()
 
                 val response =
-                    ApiConfig.getApiService().uploadStory(token, imageMultipart, description, latitude, longitude)
+                    ApiConfig.getApiService()
+                        .uploadStory(token, imageMultipart, description, latitude, longitude)
 
                 if (!(response.error as Boolean)) {
                     emit(ScreenState.Success(response))

@@ -134,6 +134,7 @@ class AddStoryActivity : AppCompatActivity() {
                 if (location != null) {
                     lat = location.latitude
                     lon = location.longitude
+                    Log.e(TAG, "LOKASI CUYH $lat, $lon")
                 }
             }
         } else {
@@ -233,7 +234,10 @@ class AddStoryActivity : AppCompatActivity() {
                 if (!locationToggle) {
                     lat = null
                     lon = null
-                }
+                } else
+                    getMyLastLocation()
+
+                Log.e(TAG, "LOKASI TOGGLE: $locationToggle, $lat, $lon")
                 viewModel.uploadStory(file, desc, lat = lat, lon = lon)
                     .observe(this@AddStoryActivity) { state ->
                         when (state) {
@@ -258,12 +262,9 @@ class AddStoryActivity : AppCompatActivity() {
             }
 
             switchLocation.setOnCheckedChangeListener { _, isChecked ->
-                if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
-                    checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                )
-                    locationToggle = isChecked
-                else
+                if (isChecked)
                     getMyLastLocation()
+                locationToggle = isChecked
             }
         }
     }
