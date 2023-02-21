@@ -133,7 +133,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             is ScreenState.Success -> {
                 showErrorLayout(false)
-                dialog.hide()
+                dialog.cancel()
                 if (state.data != null) {
                     val storyList = state.data
                     storyList.forEach {
