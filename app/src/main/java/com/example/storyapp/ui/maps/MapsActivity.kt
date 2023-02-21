@@ -115,7 +115,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun getMyLocation() {
         if (ContextCompat.checkSelfPermission(
-                applicationContext,z
+                applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
