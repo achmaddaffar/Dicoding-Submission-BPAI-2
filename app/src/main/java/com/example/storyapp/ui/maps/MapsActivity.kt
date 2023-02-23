@@ -164,7 +164,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             is ScreenState.Error -> {
-                dialog.hide()
+                dialog.cancel()
                 Log.e(TAG, "onError: ${state.message}")
                 showErrorLayout(true)
             }
